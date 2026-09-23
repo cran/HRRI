@@ -1,0 +1,64 @@
+citHeader("To cite the HRRI package in publications use:")
+
+## Package citation
+bibentry(
+  bibtype = "Manual",
+  title = "HRRI: Holobiont Redox Resilience Index for Integrative Stress Biology",
+  author = c(
+    person(
+      "Mitra", "Ghotbi",
+      email = "mitra.ghotbi@gmail.com",
+      comment = c(ORCID = "0000-0001-9185-9993")
+    ),
+    person(
+      "Marjan", "Ghotbi",
+      comment = c(ORCID = "0000-0003-4655-6445")
+    )
+  ),
+  year = "2026",
+  note = sprintf("R package version %s", meta$Version),
+  url = "https://github.com/mghotbi/HRRI"
+)
+
+## Methodology manuscript
+bibentry(
+  bibtype = "Unpublished",
+  title = paste("HRRI: direction-aware diagnostics for soil-plant-microbiome",
+                "redox recovery across hydroclimatic disturbances"),
+  author = c(
+    person("Mitra", "Ghotbi"),
+    person("Marjan", "Ghotbi"),
+    person("Jovan", "Komluski"),
+    person("Eva H.", "Holtgrewe-Stukenbrock")
+  ),
+  year = "2026",
+  note = "Manuscript in preparation"
+)
+## Theory manuscript
+bibentry(
+  bibtype = "Unpublished",
+  title   = "A Theory of Hydroclimatic Redox Resilience",
+  author  = c(
+    person("Mitra", "Ghotbi"),
+    person("Bethany C.", "Kolody"),
+    person("Marjan", "Ghotbi"),
+    person("Eva", "Holtgrewe-Stukenbrock")
+  ),
+  year = "2026",
+  note = "Submitted to Communications Earth & Environment"
+)
+
+## Mechanistic review
+bibentry(
+  bibtype = "Unpublished",
+  title   = paste("Rhizosphere redox recovery after hydrological disturbances:",
+                  "mechanisms across the soil-plant-microbiome continuum"),
+  author  = c(
+    person("Mitra", "Ghotbi"),
+    person("Marjan", "Ghotbi"),
+    person("Karl H.", "Muehling"),
+    person("Eva H.", "Stukenbrock")
+  ),
+  year = "2026",
+  note = "Submitted to Soil Biology & Biochemistry"
+)
