@@ -10,10 +10,335 @@ output:
     toc: true
     toc_depth: 3
     number_sections: true
-    css: css/hrri.css
     fig_width: 7
     fig_height: 4.4
     dev: png
+header-includes: |
+  <style>
+  /* ==========================================================================
+     HRRI vignette theme — clean scientific
+     Muted slate/earth palette, serif headings, generous whitespace.
+     ========================================================================== */
+  
+  :root {
+    --hrri-ink:        #1c2321;   /* body text */
+    --hrri-ink-soft:   #4a5451;   /* secondary text */
+    --hrri-rule:       #dde3e1;   /* hairlines */
+    --hrri-bg:         #ffffff;
+    --hrri-bg-soft:    #f7f9f8;   /* code / table zebra */
+  
+    --hrri-fe:         #8c4a2f;   /* iron   — rust        */
+    --hrri-mn:         #6b5b8a;   /* mangan — violet      */
+    --hrri-redox:      #2f6b6b;   /* redox  — deep teal   */
+    --hrri-accent:     #2f6b6b;
+    --hrri-warn:       #9a6a24;   /* caution ochre        */
+  
+    --hrri-serif:  "Source Serif 4", "Iowan Old Style", Palatino, Georgia, serif;
+    --hrri-sans:   "Source Sans 3", -apple-system, BlinkMacSystemFont, "Segoe UI",
+                   Helvetica, Arial, sans-serif;
+    --hrri-mono:   "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+  }
+  
+  /* ---------- page frame ---------------------------------------------------- */
+  
+  body {
+    font-family: var(--hrri-sans);
+    font-size: 16px;
+    line-height: 1.65;
+    color: var(--hrri-ink);
+    background: var(--hrri-bg);
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: 3.5rem 1.5rem 6rem;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  
+  /* ---------- title block --------------------------------------------------- */
+  
+  h1.title {
+    font-family: var(--hrri-serif);
+    font-size: 2.15rem;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+    color: var(--hrri-ink);
+    margin: 0 0 0.4rem;
+    padding-bottom: 1.1rem;
+    border-bottom: 2px solid var(--hrri-redox);
+  }
+  
+  h4.author, h4.date {
+    font-family: var(--hrri-sans);
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: var(--hrri-ink-soft);
+    margin: 0.35rem 0 0;
+  }
+  h4.author { margin-top: 1rem; }
+  
+  /* ---------- headings ------------------------------------------------------ */
+  
+  h1, h2, h3, h4 {
+    font-family: var(--hrri-serif);
+    font-weight: 600;
+    color: var(--hrri-ink);
+    letter-spacing: -0.01em;
+  }
+  
+  h1 { font-size: 1.75rem; margin: 3.2rem 0 1rem; }
+  
+  h2 {
+    font-size: 1.34rem;
+    margin: 2.8rem 0 0.9rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--hrri-rule);
+  }
+  
+  h3 {
+    font-size: 1.1rem;
+    margin: 2rem 0 0.6rem;
+    color: var(--hrri-ink-soft);
+  }
+  
+  h4 {
+    font-size: 0.97rem;
+    font-family: var(--hrri-sans);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--hrri-ink-soft);
+    margin: 1.6rem 0 0.5rem;
+  }
+  
+  /* ---------- body copy ----------------------------------------------------- */
+  
+  p { margin: 0 0 1.15rem; }
+  
+  a {
+    color: var(--hrri-accent);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(47, 107, 107, 0.32);
+    transition: border-color 0.15s ease;
+  }
+  a:hover { border-bottom-color: var(--hrri-accent); }
+  
+  strong { font-weight: 650; color: var(--hrri-ink); }
+  
+  /* ---------- table of contents --------------------------------------------- */
+  
+  #TOC {
+    background: var(--hrri-bg-soft);
+    border: 1px solid var(--hrri-rule);
+    border-radius: 6px;
+    padding: 1.2rem 1.5rem;
+    margin: 2rem 0 3rem;
+    font-size: 0.9rem;
+  }
+  #TOC ul { list-style: none; padding-left: 1rem; margin: 0.3rem 0; }
+  #TOC > ul { padding-left: 0; }
+  #TOC a {
+    border-bottom: none;
+    color: var(--hrri-ink-soft);
+    display: block;
+    padding: 0.16rem 0;
+  }
+  #TOC a:hover { color: var(--hrri-accent); }
+  
+  /* ---------- code ---------------------------------------------------------- */
+  
+  code {
+    font-family: var(--hrri-mono);
+    font-size: 0.855em;
+    background: var(--hrri-bg-soft);
+    color: var(--hrri-fe);
+    padding: 0.12em 0.36em;
+    border-radius: 3px;
+  }
+  
+  pre {
+    font-family: var(--hrri-mono);
+    font-size: 0.83rem;
+    line-height: 1.55;
+    background: var(--hrri-bg-soft);
+    border: 1px solid var(--hrri-rule);
+    border-left: 3px solid var(--hrri-redox);
+    border-radius: 4px;
+    padding: 1rem 1.15rem;
+    margin: 1.3rem 0;
+    overflow-x: auto;
+  }
+  pre code {
+    background: none;
+    color: var(--hrri-ink);
+    padding: 0;
+    font-size: inherit;
+  }
+  
+  /* knitr output blocks — visually subordinate to input */
+  pre:not([class]), pre.r + pre {
+    border-left-color: var(--hrri-rule);
+    color: var(--hrri-ink-soft);
+    background: #fbfcfc;
+  }
+  
+  /* syntax highlighting */
+  code span.fu { color: var(--hrri-redox); font-weight: 600; }  /* function   */
+  code span.st { color: var(--hrri-fe); }                        /* string     */
+  code span.co { color: #7d8886; font-style: italic; }           /* comment    */
+  code span.dv, code span.fl { color: var(--hrri-mn); }          /* numbers    */
+  code span.kw { color: var(--hrri-ink); font-weight: 600; }     /* keyword    */
+  
+  /* ---------- tables -------------------------------------------------------- */
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+    font-variant-numeric: tabular-nums;
+    margin: 1.6rem 0;
+  }
+  
+  th {
+    font-family: var(--hrri-sans);
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--hrri-ink-soft);
+    text-align: left;
+    padding: 0.55rem 0.7rem;
+    border-bottom: 2px solid var(--hrri-ink);
+  }
+  
+  td {
+    padding: 0.5rem 0.7rem;
+    border-bottom: 1px solid var(--hrri-rule);
+  }
+  
+  tbody tr:nth-child(even) { background: var(--hrri-bg-soft); }
+  tbody tr:last-child td   { border-bottom: 2px solid var(--hrri-ink); }
+  
+  /* numeric columns right-align */
+  td:not(:first-child) { text-align: right; }
+  th:not(:first-child) { text-align: right; }
+  
+  /* ---------- figures ------------------------------------------------------- */
+  
+  img, .figure {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.9rem auto;
+  }
+  
+  p.caption, .figure p {
+    font-size: 0.84rem;
+    color: var(--hrri-ink-soft);
+    text-align: left;
+    margin-top: 0.7rem;
+    padding-left: 0.9rem;
+    border-left: 2px solid var(--hrri-rule);
+    line-height: 1.5;
+  }
+  
+  /* ---------- math ---------------------------------------------------------- */
+  
+  .math.display {
+    margin: 1.8rem 0;
+    padding: 1.1rem 0;
+    overflow-x: auto;
+    border-top: 1px solid var(--hrri-rule);
+    border-bottom: 1px solid var(--hrri-rule);
+  }
+  
+  /* ---------- callout boxes -------------------------------------------------
+     Use in the .Rmd as:
+       <div class="note">   ... </div>
+       <div class="caution">... </div>
+       <div class="method"> ... </div>
+     -------------------------------------------------------------------------- */
+  
+  .note, .caution, .method {
+    border-radius: 5px;
+    padding: 1rem 1.25rem;
+    margin: 1.7rem 0;
+    font-size: 0.92rem;
+    line-height: 1.6;
+  }
+  .note p:last-child, .caution p:last-child, .method p:last-child { margin-bottom: 0; }
+  
+  .note {
+    background: #f2f7f7;
+    border-left: 3px solid var(--hrri-redox);
+  }
+  
+  .caution {
+    background: #fbf6ec;
+    border-left: 3px solid var(--hrri-warn);
+  }
+  
+  .method {
+    background: var(--hrri-bg-soft);
+    border: 1px solid var(--hrri-rule);
+    border-left: 3px solid var(--hrri-mn);
+  }
+  
+  .note::before, .caution::before, .method::before {
+    display: block;
+    font-family: var(--hrri-sans);
+    font-size: 0.71rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.45rem;
+  }
+  .note::before    { content: "Note";        color: var(--hrri-redox); }
+  .caution::before { content: "Caution";     color: var(--hrri-warn);  }
+  .method::before  { content: "Method note"; color: var(--hrri-mn);    }
+  
+  /* ---------- blockquote ---------------------------------------------------- */
+  
+  blockquote {
+    margin: 1.6rem 0;
+    padding: 0.2rem 0 0.2rem 1.3rem;
+    border-left: 3px solid var(--hrri-rule);
+    color: var(--hrri-ink-soft);
+    font-style: italic;
+  }
+  
+  /* ---------- lists --------------------------------------------------------- */
+  
+  ul, ol { margin: 0 0 1.15rem; padding-left: 1.4rem; }
+  li { margin-bottom: 0.38rem; }
+  li::marker { color: var(--hrri-ink-soft); }
+  
+  /* ---------- horizontal rule ----------------------------------------------- */
+  
+  hr {
+    border: none;
+    border-top: 1px solid var(--hrri-rule);
+    margin: 3rem 0;
+  }
+  
+  /* ---------- print --------------------------------------------------------- */
+  
+  @media print {
+    body { max-width: none; padding: 0; font-size: 10.5pt; }
+    #TOC { display: none; }
+    pre, table, .figure, .note, .caution, .method { page-break-inside: avoid; }
+    h1, h2, h3 { page-break-after: avoid; }
+    a { border-bottom: none; color: var(--hrri-ink); }
+  }
+  
+  /* ---------- small screens ------------------------------------------------- */
+  
+  @media (max-width: 640px) {
+    body { padding: 2rem 1.1rem 4rem; font-size: 15px; }
+    h1.title { font-size: 1.7rem; }
+    table { font-size: 0.8rem; }
+    pre { font-size: 0.76rem; padding: 0.8rem; }
+  }
+  </style>
 vignette: >
   %\VignetteIndexEntry{HRRI: Reading the Figures — A Worked Example}
   %\VignetteEngine{knitr::rmarkdown}
@@ -21,13 +346,57 @@ vignette: >
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(
+
+# ---------------------------------------------------------------------
+# This vignette runs against the INSTALLED HRRI, not the source tree, so a
+# missing or outdated installation must fail with instructions rather than
+# with R's generic "there is no package called" message.
+# ---------------------------------------------------------------------
+.hrri_needs <- c("plot_rri_framework", "plot_rri_identifiability",
+                 "plot_rri_recovery_diagnostics", "plot_rri_timeseries",
+                 "plot_rri_accuracy")
+
+if (!requireNamespace("HRRI", quietly = TRUE)) {
+  stop("HRRI is not installed, so this vignette cannot run.\n",
+       "Install it from the package source, without vignettes, then retry:\n",
+       "  install.packages(\"~/Desktop/HRRI\", repos = NULL, type = \"source\",\n",
+       "                   INSTALL_opts = \"--no-docs\")\n",
+       "Libraries searched: ", paste(.libPaths(), collapse = "; "),
+       call. = FALSE)
+}
+
+.hrri_missing <- setdiff(.hrri_needs, getNamespaceExports("HRRI"))
+.hrri_args_ok <-
+  all(c("forcing_threshold", "time_label") %in%
+        names(formals(getExportedValue("HRRI", "plot_rri_timeseries")))) &&
+  "cluster_label" %in%
+    names(formals(getExportedValue("HRRI", "plot_rri_accuracy")))
+
+if (length(.hrri_missing) > 0 || !.hrri_args_ok) {
+  stop("The installed HRRI is version ",
+       as.character(utils::packageVersion("HRRI")),
+       ", which predates the API this vignette uses.\n",
+       if (length(.hrri_missing) > 0)
+         paste0("Missing functions: ",
+                paste(.hrri_missing, collapse = ", "), "\n") else "",
+       if (!.hrri_args_ok)
+         "plot_rri_timeseries() lacks forcing_threshold / time_label.\n" else "",
+       "Version 1.0.6 on CRAN is the usual cause. Install 1.0.8 from source:\n",
+       "  install.packages(\"~/Desktop/HRRI\", repos = NULL, type = \"source\",\n",
+       "                   INSTALL_opts = \"--no-docs\")\n",
+       "Currently installed at: ", find.package("HRRI"),
+       call. = FALSE)
+}
+
+library(HRRI)
+rm(.hrri_needs, .hrri_missing, .hrri_args_ok)
+knitr::opts_chunk$set(dev = "png", 
   collapse   = TRUE,
   comment    = "#>",
   fig.width  = 7,
   fig.height = 4.4,
   fig.align  = "center",
-  dpi        = 150,
+  dpi        = 200,
   out.width  = "100%",
   message    = FALSE,
   warning    = FALSE
@@ -50,6 +419,7 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
       )
   )
 }
+
 ```
 
 # How to use this vignette
@@ -83,7 +453,8 @@ packageVersion("HRRI")
 # The experiment
 
 One flood–drain cycle across two plots, two depths and three plants, observed
-daily for 40 steps. The disturbance runs from day 12 to day 22.
+daily for 40 steps. The classified disturbance spans days 12–22; the Gaussian forcing extends
+beyond those classified days. The pulse centre, width and threshold are explicit.
 
 ```{r simulate}
 PERTURB_START <- 12
@@ -94,12 +465,13 @@ sim <- simulate_redox_holobiont(
   n_depth              = 2,
   n_plant              = 3,
   n_time               = 40,
-  p_micro              = 25,
   seed                 = 2026,
   scenario             = "flood_drain",
   n_cycles             = 1,
   disturbance_strength = 0.72,
-  history_strength     = 0.55
+  disturbance_center   = 17,
+  disturbance_width    = 5.5 / sqrt(-2 * log(0.35)) / 40,
+  include_graph        = TRUE
 )
 
 nrow(sim$id)          # 2 x 2 x 3 x 40 = 480 observations
@@ -107,8 +479,8 @@ names(sim$latent_state)
 ```
 
 <div class="caution">
-`latent_state` is the simulator's ground truth. It exists so we can check
-whether HRRI recovers what it is meant to recover. With real data there is no
+`latent_state` contains prescribed synthetic states. It allows internal
+comparisons, not validation of those states against real biological mechanisms. With real data there is no
 such column, and nothing in the scoring path is allowed to read it.
 </div>
 
@@ -203,18 +575,16 @@ and are not calibrated to measured legacy effects in any field system.
 
 ```{r pipeline}
 res <- rri_pipeline_st(
-  ROS_flux     = sim$ROS_flux,
+  ROS_flux     = sim$plant_data,
   Eh_stability = sim$Eh_stability,
-  micro_data   = sim$micro_data,
+  micro_data   = log1p(sim$micro_gene_abundance),
   id           = sim$id,
   time_col     = "time",
   group_cols   = c("plot", "depth", "plant_id"),
   mode         = "snapshot",
-  reducer      = "per_domain",
-  scaling      = "pnorm",
   direction_anchor_phys  = "FvFm",
   direction_anchor_soil  = "Eh",
-  direction_anchor_micro = "ASV1"
+  direction_anchor_micro = "mtrA"
 )
 
 scored <- attach_hrri_ids(res$row_scores, sim$id)
@@ -231,20 +601,22 @@ function warns when anchors are missing.
 
 # One trajectory in context
 
-```{r timeseries}
+```{r timeseries, fig.width=7.4, fig.height=6, fig.alt="One trajectory in context"}
 plot_rri_timeseries(
   sim, res,
   plot_id       = "P1",
   depth_id      = "D1",
   plant_id      = "Plant1",
   perturb_start = PERTURB_START,
-  perturb_end   = PERTURB_END
+  perturb_end   = PERTURB_END,
+  forcing_threshold = 0.35, time_label = "Time (days)"
 )
 ```
 
 <div class="note">
-**Reading it** — Eh, accessible capacity and the composite RRI on a shared time
-axis in separate panels, each in its own units. Look for whether RRI returns to
+**Reading it** — forcing, Eh, electron-accepting capacity (EAC) and the composite RRI on a shared time
+axis in separate panels, each in its own units. EAC is an inventory, not
+event-window accessible capacity. Look for whether RRI returns to
 its pre-event level, and whether it returns at the same time as Eh. A gap
 between the two is the interesting case.
 </div>
@@ -257,7 +629,7 @@ evidence of a mechanistic link.
 
 # Where the domains sit relative to each other
 
-```{r ternary, echo=TRUE, results="asis"}
+```{r ternary, echo=TRUE, results="asis", fig.alt="Where the domains sit relative to each other"}
 ## ggtern is a Suggests dependency. Loading it -- not drawing with it --
 ## patches ggplot2's element tree, and under ggplot2 >= 4.0.0 that patch makes
 ## every later ggplot in the session fail with
@@ -318,7 +690,7 @@ if their domain *ratios* match. Always read the ternary alongside Section 4.
 
 # Domain-score state space
 
-```{r state-space}
+```{r state-space, fig.alt="Domain-score state space"}
 plot_rri_state_space(
   res,
   x_property = "Physio",
@@ -344,13 +716,15 @@ Relabelling them as mechanistic properties would be a category error.
 # Recovery signatures
 
 ```{r recovery}
+recovery_scores <- attach_hrri_ids(res$row_scores, sim$id)
+recovery_scores$WFPS <- sim$forcing$WFPS
 rec <- rri_recovery_metrics(
-  res           = res,
-  id            = sim$id,
+  res           = recovery_scores,
   time_col      = "time",
   group_cols    = c("plot", "depth", "plant_id"),
   perturb_start = PERTURB_START,
   perturb_end   = PERTURB_END,
+  forcing_col   = "WFPS",
   rri_col       = "RRI"
 )
 
@@ -362,8 +736,10 @@ rec[1:4, c("plot", "depth", "plant_id", "baseline_rri", "depth_min_frac",
 <div class="note">
 **Reading it** — one row per trajectory. `depth_min_frac` is how far the score
 fell relative to baseline; `tau_lag` is how long recovery took to begin;
-`incomplete_return_frac` is the terminal shortfall. `fit_status` reports
-whether the rate estimate is trustworthy — always read `k` together with it.
+`incomplete_return_frac` is signed terminal displacement from baseline.
+`fit_status` reports whether the computational fitting criteria were met;
+it does not establish precision or ecological validity. Read `k`, `n_fit` and
+fit quality together.
 </div>
 
 <div class="caution">
@@ -375,7 +751,7 @@ not establish it, so the package refuses to claim otherwise. Use
 
 ## Recovery map across all trajectories
 
-```{r recovery-map, fig.height=4.8}
+```{r recovery-map, fig.height=4.8, fig.alt="Recovery map across all trajectories"}
 plot_rri_recovery_map(
   res           = res,
   id            = sim$id,
@@ -396,7 +772,7 @@ recover.
 
 ## Ranking trajectories by signature
 
-```{r landscape, eval=requireNamespace("tidyr", quietly=TRUE) && requireNamespace("tidyselect", quietly=TRUE), fig.height=5}
+```{r landscape, eval=requireNamespace("tidyr", quietly=TRUE) && requireNamespace("tidyselect", quietly=TRUE), fig.height=5, fig.alt="Ranking trajectories by signature"}
 ## Name the metrics explicitly rather than relying on the function default.
 ## Older HRRI builds defaulted to A_norm / O_norm / tau_r, which
 ## rri_recovery_metrics() no longer produces; being explicit makes this chunk
@@ -414,7 +790,8 @@ plot_rri_recovery_landscape(
 <div class="note">
 **Reading it** — trajectories as rows, recovery signatures as columns, each
 column scaled within the cohort. It answers "which units behaved similarly, and
-on which signature do they differ?" — the ordering is by incomplete return.
+on which signature do they differ?" — the ordering is by absolute final displacement. Headers report the number of
+finite trajectories. Grey cells with dashes mean unavailable, never zero.
 </div>
 
 <div class="caution">
@@ -425,19 +802,20 @@ compared cell-by-cell.
 
 # Property diagnostics
 
-```{r properties, fig.height=5}
+```{r properties, fig.height=5, fig.alt="Property diagnostics"}
 ## soil_df is what makes Capacity available. Without it the Capacity axis is
-## returned as NA and the radar shows a short spoke.
+## returned as NA and the profile labels it as missing.
 props <- rri_property_scores(res, rec = rec, soil_df = sim$soil_data)
 props$property_table
 
-plot_rri_properties(props, rri_value = mean(scored$RRI, na.rm = TRUE))
+plot_rri_properties(props, rec = rec, base_size = 10)
 ```
 
 <div class="note">
-**Reading it** — the four diagnostics on one radar. Unavailable properties stay
-missing rather than being imputed, so a short spoke means "not supported by the
-supplied data", not "low".
+**Reading it** — four separate operational descriptors, without an overall
+mean or shared favourable direction. Missing descriptors are labelled explicitly.
+Use `type = "radar"` only when a radar display is specifically needed; polygon
+area has no quantitative meaning.
 </div>
 
 <div class="caution">
@@ -453,23 +831,18 @@ Check `props$property_table` to see the method behind each score.
 Because the simulator defines a target, we can check agreement directly. This
 is an internal consistency check, not empirical validation.
 
-```{r validation, fig.height=4}
-ok <- is.finite(scored$RRI) & is.finite(sim$latent_truth)
-r  <- stats::cor(scored$RRI[ok], sim$latent_truth[ok])
-cat("r(RRI, latent_truth) =", round(r, 3), "on", sum(ok), "observations\n")
-
-ggplot(data.frame(truth = sim$latent_truth[ok], RRI = scored$RRI[ok]),
-       aes(truth, RRI)) +
-  geom_point(alpha = 0.25, size = 1.1, colour = "#2f6b6b") +
-  geom_smooth(method = "lm", formula = y ~ x, se = TRUE,
-              colour = "#8c4a2f", fill = "#8c4a2f", alpha = 0.12) +
-  labs(x = "Simulator target  z(t)", y = "HRRI score",
-       title = sprintf("Agreement with the prescribed target (r = %.3f)", r))
+```{r validation, fig.width=7.4, fig.height=4, fig.alt="Did HRRI recover the hidden state?"}
+# Two plots are insufficient for a stable plot-level uncertainty assessment.
+# Show descriptive association/agreement; Figure 6 uses a separate 24-plot design.
+a_gallery <- rri_accuracy(scored$RRI, sim$latent_truth,
+  cluster = scored$plot, n_boot = 0, n_perm = 0)
+plot_rri_accuracy(a_gallery, panels = "calibration", base_size = 9,
+  score_label = "Observation-derived score", target_label = "Prescribed target")
 ```
 
 <div class="caution">
 **What it does not show** — this is agreement with a target *we defined*. It
-demonstrates that the scoring path is internally coherent. It is not predictive
+describes numerical internal agreement under the declared simulation. It is not predictive
 accuracy, not held-out error, and not evidence that HRRI tracks resilience in
 any real soil.
 </div>
@@ -480,7 +853,7 @@ Every function above accepts plain data frames. Replace the simulator with your
 own measurements, keeping rows aligned across blocks:
 
 ```{r own-data, eval=FALSE}
-res <- rri_pipeline(
+my_res <- rri_pipeline(
   soil  = my_soil,      # Eh, pH, Fe pools, EAC/EDC ...
   plant = my_plant,     # SPAD, Fv/Fm, ROL ...
   micro = my_micro,     # ASV table or functional genes
@@ -506,6 +879,23 @@ three-domain run are not interchangeable; compare them through
 ## restoring is the same courtesy CRAN asks for with par() and options().
 if (exists("old_theme")) ggplot2::theme_set(old_theme)
 ```
+
+
+# Complete paper figure set
+
+The companion `vignette("HRRI_paper_figures")` maps and renders all six paper
+figures. The framework and analytical identifiability panels are available as
+`plot_rri_framework()` and `plot_rri_identifiability()`. Recovery availability
+is paired with the score map below; counts are calculated from `rec`.
+
+```{r recovery-availability, fig.width=8, fig.height=4.6, fig.alt="Complete paper figure set"}
+plot_rri_recovery_diagnostics(res, sim$id, rec,
+  perturb_start=PERTURB_START, perturb_end=PERTURB_END)
+```
+
+For publication export, use the supplied `export_paper_figures.R` example:
+PDF and SVG retain vector geometry, with optional editable-text SVG via svglite.
+ 
 
 # Session information
 

@@ -1,11 +1,14 @@
 ## ----setup, include=FALSE-----------------------------------------------------
-knitr::opts_chunk$set(
+
+library(HRRI)
+
+knitr::opts_chunk$set(dev = "png", 
   collapse   = TRUE,
   comment    = "#>",
   fig.width  = 7,
   fig.height = 4.2,
   fig.align  = "center",
-  dpi        = 150,
+  dpi        = 200,
   out.width  = "100%",
   message    = FALSE,
   warning    = FALSE
@@ -253,25 +256,21 @@ head(rri_scored[, c("plot", "depth", "plant_id", "time",
                     "RRI", "Physio", "Soil", "Micro")])
 
 ## ----validation---------------------------------------------------------------
-## rri_scored is aligned to sim$id, and hence to its latent_truth vector.
-truth <- sim$latent_truth
-if (!is.numeric(truth) || length(truth) != nrow(rri_scored)) {
-  stop("latent_truth must be a numeric vector with one value per sim$id row.")
-}
-
-## One independent experimental unit = one plot x depth x plant trajectory.
-traj <- interaction(rri_scored$plot, rri_scored$depth, rri_scored$plant_id,
-                    drop = TRUE)
-
+cat("HRRI: starting the 24-plot agreement example (100 bootstrap resamples).\n",
+    file = stderr())
+acc_sim <- simulate_redox_holobiont(
+  n_plot=24, n_depth=2, n_plant=3, n_time=40,
+  seed=4096, scenario="flood_drain", disturbance_strength=.70,
+  n_cycles=2L, disturbance_center=NULL, disturbance_width=.08)
+acc_res <- rri_pipeline_st(
+  ROS_flux=acc_sim$plant_data, Eh_stability=acc_sim$Eh_stability,
+  micro_data=log1p(acc_sim$micro_gene_abundance), id=acc_sim$id,
+  time_col="time", group_cols=c("plot","depth","plant_id"), mode="snapshot",
+  direction_anchor_phys="FvFm", direction_anchor_soil="Eh", direction_anchor_micro="mtrA")
 acc <- rri_accuracy(
-  score   = rri_scored$RRI,
-  target  = truth,
-  cluster = traj,
-  n_boot  = 500,
-  n_perm  = 500,
-  seed    = 42
-)
-
+  score=acc_res$row_scores$RRI, target=acc_sim$latent_truth,
+  cluster=acc_sim$id$plot, n_boot=100, n_perm=0, seed=20260913)
+cat("HRRI: agreement calculations finished; preparing figures.\n", file = stderr())
 acc
 
 ## ----validation_decomp--------------------------------------------------------
@@ -281,10 +280,23 @@ acc$decomposition[, c("component", "percent")]
 c(mse      = attr(acc$decomposition, "mse"),
   residual = attr(acc$decomposition, "residual"))
 
-## ----validation_figure, fig.width=9.5, fig.height=7.5, out.width="100%"-------
-plot_rri_accuracy(acc,
-                  score_label  = "RRI",
-                  target_label = "Prescribed target")
+## ----validation_figure, fig.width=7.4, fig.height=6.5, out.width="100%", fig.alt="Agreement with the prescribed target"----
+# Use the installed namespace, avoiding a stale function in the workspace.
+accuracy_plot <- HRRI::plot_rri_accuracy
+plot_formals <- names(formals(accuracy_plot))
+plot_args <- list(acc = acc, score_label = "RRI",
+                  target_label = "Prescribed target",
+                  base_size = 9, show_clusters = FALSE)
+# Older HRRI builds do not accept these presentation arguments.
+if ("cluster_label" %in% plot_formals) plot_args$cluster_label <- "Plots"
+if ("style" %in% plot_formals) plot_args$style <- "paper"
+accuracy_figure <- do.call(accuracy_plot, plot_args)
+# Without optional patchwork, HRRI returns a named list of plots.
+if (inherits(accuracy_figure, c("ggplot", "patchwork"))) {
+  print(accuracy_figure)
+} else {
+  for (panel in accuracy_figure) print(panel)
+}
 
 ## ----recovery-----------------------------------------------------------------
 ## Step 1 — use the aligned score table created in the pipeline chunk.

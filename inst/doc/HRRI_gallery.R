@@ -1,11 +1,55 @@
 ## ----setup, include=FALSE-----------------------------------------------------
-knitr::opts_chunk$set(
+
+# ---------------------------------------------------------------------
+# This vignette runs against the INSTALLED HRRI, not the source tree, so a
+# missing or outdated installation must fail with instructions rather than
+# with R's generic "there is no package called" message.
+# ---------------------------------------------------------------------
+.hrri_needs <- c("plot_rri_framework", "plot_rri_identifiability",
+                 "plot_rri_recovery_diagnostics", "plot_rri_timeseries",
+                 "plot_rri_accuracy")
+
+if (!requireNamespace("HRRI", quietly = TRUE)) {
+  stop("HRRI is not installed, so this vignette cannot run.\n",
+       "Install it from the package source, without vignettes, then retry:\n",
+       "  install.packages(\"~/Desktop/HRRI\", repos = NULL, type = \"source\",\n",
+       "                   INSTALL_opts = \"--no-docs\")\n",
+       "Libraries searched: ", paste(.libPaths(), collapse = "; "),
+       call. = FALSE)
+}
+
+.hrri_missing <- setdiff(.hrri_needs, getNamespaceExports("HRRI"))
+.hrri_args_ok <-
+  all(c("forcing_threshold", "time_label") %in%
+        names(formals(getExportedValue("HRRI", "plot_rri_timeseries")))) &&
+  "cluster_label" %in%
+    names(formals(getExportedValue("HRRI", "plot_rri_accuracy")))
+
+if (length(.hrri_missing) > 0 || !.hrri_args_ok) {
+  stop("The installed HRRI is version ",
+       as.character(utils::packageVersion("HRRI")),
+       ", which predates the API this vignette uses.\n",
+       if (length(.hrri_missing) > 0)
+         paste0("Missing functions: ",
+                paste(.hrri_missing, collapse = ", "), "\n") else "",
+       if (!.hrri_args_ok)
+         "plot_rri_timeseries() lacks forcing_threshold / time_label.\n" else "",
+       "Version 1.0.6 on CRAN is the usual cause. Install 1.0.8 from source:\n",
+       "  install.packages(\"~/Desktop/HRRI\", repos = NULL, type = \"source\",\n",
+       "                   INSTALL_opts = \"--no-docs\")\n",
+       "Currently installed at: ", find.package("HRRI"),
+       call. = FALSE)
+}
+
+library(HRRI)
+rm(.hrri_needs, .hrri_missing, .hrri_args_ok)
+knitr::opts_chunk$set(dev = "png", 
   collapse   = TRUE,
   comment    = "#>",
   fig.width  = 7,
   fig.height = 4.4,
   fig.align  = "center",
-  dpi        = 150,
+  dpi        = 200,
   out.width  = "100%",
   message    = FALSE,
   warning    = FALSE
@@ -29,6 +73,7 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
   )
 }
 
+
 ## ----libraries----------------------------------------------------------------
 library(HRRI)
 library(ggplot2)
@@ -43,12 +88,13 @@ sim <- simulate_redox_holobiont(
   n_depth              = 2,
   n_plant              = 3,
   n_time               = 40,
-  p_micro              = 25,
   seed                 = 2026,
   scenario             = "flood_drain",
   n_cycles             = 1,
   disturbance_strength = 0.72,
-  history_strength     = 0.55
+  disturbance_center   = 17,
+  disturbance_width    = 5.5 / sqrt(-2 * log(0.35)) / 40,
+  include_graph        = TRUE
 )
 
 nrow(sim$id)          # 2 x 2 x 3 x 40 = 480 observations
@@ -109,35 +155,34 @@ ggplot(mem, aes(time, value, colour = component, linetype = component)) +
 
 ## ----pipeline-----------------------------------------------------------------
 res <- rri_pipeline_st(
-  ROS_flux     = sim$ROS_flux,
+  ROS_flux     = sim$plant_data,
   Eh_stability = sim$Eh_stability,
-  micro_data   = sim$micro_data,
+  micro_data   = log1p(sim$micro_gene_abundance),
   id           = sim$id,
   time_col     = "time",
   group_cols   = c("plot", "depth", "plant_id"),
   mode         = "snapshot",
-  reducer      = "per_domain",
-  scaling      = "pnorm",
   direction_anchor_phys  = "FvFm",
   direction_anchor_soil  = "Eh",
-  direction_anchor_micro = "ASV1"
+  direction_anchor_micro = "mtrA"
 )
 
 scored <- attach_hrri_ids(res$row_scores, sim$id)
 attr(scored, "id_alignment")
 summary(scored$RRI)
 
-## ----timeseries---------------------------------------------------------------
+## ----timeseries, fig.width=7.4, fig.height=6, fig.alt="One trajectory in context"----
 plot_rri_timeseries(
   sim, res,
   plot_id       = "P1",
   depth_id      = "D1",
   plant_id      = "Plant1",
   perturb_start = PERTURB_START,
-  perturb_end   = PERTURB_END
+  perturb_end   = PERTURB_END,
+  forcing_threshold = 0.35, time_label = "Time (days)"
 )
 
-## ----ternary, echo=TRUE, results="asis"---------------------------------------
+## ----ternary, echo=TRUE, results="asis", fig.alt="Where the domains sit relative to each other"----
 ## ggtern is a Suggests dependency. Loading it -- not drawing with it --
 ## patches ggplot2's element tree, and under ggplot2 >= 4.0.0 that patch makes
 ## every later ggplot in the session fail with
@@ -177,7 +222,7 @@ comp <- res$row_scores_comp[, c("Physio", "Soil", "Micro")]
 round(colMeans(comp, na.rm = TRUE), 3)          # centroid
 round(range(rowSums(comp, na.rm = TRUE)), 6)    # closure check: both 1
 
-## ----state-space--------------------------------------------------------------
+## ----state-space, fig.alt="Domain-score state space"--------------------------
 plot_rri_state_space(
   res,
   x_property = "Physio",
@@ -187,13 +232,15 @@ plot_rri_state_space(
 )
 
 ## ----recovery-----------------------------------------------------------------
+recovery_scores <- attach_hrri_ids(res$row_scores, sim$id)
+recovery_scores$WFPS <- sim$forcing$WFPS
 rec <- rri_recovery_metrics(
-  res           = res,
-  id            = sim$id,
+  res           = recovery_scores,
   time_col      = "time",
   group_cols    = c("plot", "depth", "plant_id"),
   perturb_start = PERTURB_START,
   perturb_end   = PERTURB_END,
+  forcing_col   = "WFPS",
   rri_col       = "RRI"
 )
 
@@ -201,7 +248,7 @@ rec[1:4, c("plot", "depth", "plant_id", "baseline_rri", "depth_min_frac",
            "tau_lag", "overshoot_frac", "incomplete_return_frac",
            "displaced_plateau_flag", "fit_status")]
 
-## ----recovery-map, fig.height=4.8---------------------------------------------
+## ----recovery-map, fig.height=4.8, fig.alt="Recovery map across all trajectories"----
 plot_rri_recovery_map(
   res           = res,
   id            = sim$id,
@@ -212,7 +259,7 @@ plot_rri_recovery_map(
   perturb_end   = PERTURB_END
 )
 
-## ----landscape, eval=requireNamespace("tidyr", quietly=TRUE) && requireNamespace("tidyselect", quietly=TRUE), fig.height=5----
+## ----landscape, eval=requireNamespace("tidyr", quietly=TRUE) && requireNamespace("tidyselect", quietly=TRUE), fig.height=5, fig.alt="Ranking trajectories by signature"----
 ## Name the metrics explicitly rather than relying on the function default.
 ## Older HRRI builds defaulted to A_norm / O_norm / tau_r, which
 ## rri_recovery_metrics() no longer produces; being explicit makes this chunk
@@ -226,29 +273,24 @@ plot_rri_recovery_landscape(
   order_by = "I_norm"
 )
 
-## ----properties, fig.height=5-------------------------------------------------
+## ----properties, fig.height=5, fig.alt="Property diagnostics"-----------------
 ## soil_df is what makes Capacity available. Without it the Capacity axis is
-## returned as NA and the radar shows a short spoke.
+## returned as NA and the profile labels it as missing.
 props <- rri_property_scores(res, rec = rec, soil_df = sim$soil_data)
 props$property_table
 
-plot_rri_properties(props, rri_value = mean(scored$RRI, na.rm = TRUE))
+plot_rri_properties(props, rec = rec, base_size = 10)
 
-## ----validation, fig.height=4-------------------------------------------------
-ok <- is.finite(scored$RRI) & is.finite(sim$latent_truth)
-r  <- stats::cor(scored$RRI[ok], sim$latent_truth[ok])
-cat("r(RRI, latent_truth) =", round(r, 3), "on", sum(ok), "observations\n")
-
-ggplot(data.frame(truth = sim$latent_truth[ok], RRI = scored$RRI[ok]),
-       aes(truth, RRI)) +
-  geom_point(alpha = 0.25, size = 1.1, colour = "#2f6b6b") +
-  geom_smooth(method = "lm", formula = y ~ x, se = TRUE,
-              colour = "#8c4a2f", fill = "#8c4a2f", alpha = 0.12) +
-  labs(x = "Simulator target  z(t)", y = "HRRI score",
-       title = sprintf("Agreement with the prescribed target (r = %.3f)", r))
+## ----validation, fig.width=7.4, fig.height=4, fig.alt="Did HRRI recover the hidden state?"----
+# Two plots are insufficient for a stable plot-level uncertainty assessment.
+# Show descriptive association/agreement; Figure 6 uses a separate 24-plot design.
+a_gallery <- rri_accuracy(scored$RRI, sim$latent_truth,
+  cluster = scored$plot, n_boot = 0, n_perm = 0)
+plot_rri_accuracy(a_gallery, panels = "calibration", base_size = 9,
+  score_label = "Observation-derived score", target_label = "Prescribed target")
 
 ## ----own-data, eval=FALSE-----------------------------------------------------
-# res <- rri_pipeline(
+# my_res <- rri_pipeline(
 #   soil  = my_soil,      # Eh, pH, Fe pools, EAC/EDC ...
 #   plant = my_plant,     # SPAD, Fv/Fm, ROL ...
 #   micro = my_micro,     # ASV table or functional genes
@@ -262,6 +304,10 @@ ggplot(data.frame(truth = sim$latent_truth[ok], RRI = scored$RRI[ok]),
 ## Vignettes build in their own process so nothing outside is affected, but
 ## restoring is the same courtesy CRAN asks for with par() and options().
 if (exists("old_theme")) ggplot2::theme_set(old_theme)
+
+## ----recovery-availability, fig.width=8, fig.height=4.6, fig.alt="Complete paper figure set"----
+plot_rri_recovery_diagnostics(res, sim$id, rec,
+  perturb_start=PERTURB_START, perturb_end=PERTURB_END)
 
 ## ----session------------------------------------------------------------------
 sessionInfo()

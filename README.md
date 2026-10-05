@@ -1,11 +1,14 @@
-# HRRI
+# HRRI <img src="man/figures/logo.png" align="right" height="139" alt="HRRI hex logo" />
 
 <!-- badges: start -->
+
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![CRAN status](https://www.r-pkg.org/badges/version/HRRI)](https://CRAN.R-project.org/package=HRRI)
+[![CRAN checks](https://badges.cranchecks.info/worst/HRRI.svg)](https://cran.r-project.org/web/checks/check_results_HRRI.html)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![R >= 4.3](https://img.shields.io/badge/R-%3E%3D%204.3-276DC3.svg)](https://cran.r-project.org/)
-[![Vignette: workflow](https://img.shields.io/badge/vignette-workflow-2f6b6b.svg)](https://rpubs.com/mgh/1458235)
-[![Vignette: gallery](https://img.shields.io/badge/vignette-gallery-8c4a2f.svg)](https://rpubs.com/mgh/1458237)
+[![Vignette: workflow](https://img.shields.io/badge/vignette-workflow-2f6b6b.svg)](https://rpubs.com/mgh/HRRIWorkFlow)
+ 
 <!-- badges: end -->
 
 > Diagnostics for soil–plant–microbial redox recovery across hydroclimatic
@@ -23,6 +26,9 @@ documented limits on what may be inferred.
 ## Installation
 
 ```r
+# CRAN release
+install.packages("HRRI")
+
 # install.packages("remotes")
 remotes::install_github("mghotbi/HRRI", build_vignettes = TRUE)
 ```
@@ -224,3 +230,44 @@ Every DOI below was resolved against Crossref before being listed.
 ## License
 
 MIT © Mitra Ghotbi. See [LICENSE](LICENSE).
+
+
+## Publication figures (1.0.8)
+
+```r
+p <- plot_rri_properties(props)  # separate descriptors; no centre average
+p_recovery <- plot_rri_recovery_landscape(rec)  # retains unavailable metrics
+p_map <- plot_rri_recovery_map(res, id, rec = rec,
+  perturb_start = event_start, perturb_end = event_end)
+# Use the independent experimental unit as cluster, e.g. plot, not each row.
+p_agreement <- plot_rri_accuracy(acc)
+ggplot2::ggsave("HRRI_profile.pdf", p, width = 7.2, height = 4.5,
+                units = "in", device = "pdf")
+```
+
+All figures are computed from supplied objects. Do not paste manuscript values
+into plotting functions. Keep event definitions, component methods and unavailable
+measurements in figure captions. The default profile replaces the radar display;
+`type = "radar"` is still available explicitly. `orient = "concern"` and
+`drop_empty = TRUE` remain optional for recovery landscapes, but neither removes
+the need to explain cohort-relative scaling and missingness. Agreement limits
+for cluster means do not describe individual observations. Bootstrap intervals
+are conditional on supplied pairs, not a rerun of the complete fitted pipeline.
+
+
+### All six paper figures in R
+
+| Figure | Function |
+|---|---|
+| Framework | `plot_rri_framework()` |
+| Identifiability and accounting | `plot_rri_identifiability()` |
+| Forcing and responses | `plot_rri_timeseries()` |
+| Score dynamics and availability | `plot_rri_recovery_diagnostics()` |
+| Operational profile | `plot_rri_properties()` |
+| Conditional agreement | `plot_rri_accuracy()` |
+
+See `vignette("HRRI_paper_figures")` for the complete map and captions. Both
+original vignettes remain available, with corrected terminology and sampling
+units; their existing references are retained. 
+
+
